@@ -1,0 +1,60 @@
+﻿using Microsoft.AspNetCore.Mvc;
+
+namespace MataaProxy.Controllers
+{
+    [ApiController]
+    [Route("test")]
+    public class TestController : ControllerBase
+    {
+        [HttpGet("ping")]
+        public IActionResult Ping()
+        {
+            return Ok(new { 
+                message = "MataaProxy is running!", 
+                timestamp = DateTime.UtcNow,
+                server = Environment.MachineName
+            });
+        }
+
+        [HttpGet("echo")]
+        public IActionResult Echo()
+        {
+            var request = new
+            {
+                method = Request.Method,
+                path = Request.Path.Value,
+                query = Request.QueryString.Value,
+                headers = Request.Headers.ToDictionary(h => h.Key, h => h.Value.ToArray()),
+                host = Request.Host.Value,
+                scheme = Request.Scheme,
+                userAgent = Request.Headers.UserAgent.ToString()
+            };
+
+            return Ok(request);
+        }
+
+        [HttpPost("echo")]
+        public async Task<IActionResult> EchoPost()
+        {
+            string body = "";
+            if (Request.ContentLength > 0)
+            {
+                using var reader = new StreamReader(Request.Body);
+                body = await reader.ReadToEndAsync();
+            }
+
+            var request = new
+            {
+                method = Request.Method,
+                path = Request.Path.Value,
+                query = Request.QueryString.Value,
+                headers = Request.Headers.ToDictionary(h => h.Key, h => h.Value.ToArray()),
+                body = body,
+                contentType = Request.ContentType,
+                contentLength = Request.ContentLength
+            };
+
+            return Ok(request);
+        }
+    }
+}

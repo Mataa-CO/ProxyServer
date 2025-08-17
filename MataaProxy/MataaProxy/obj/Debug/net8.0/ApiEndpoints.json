@@ -1,0 +1,82 @@
+[
+  {
+    "ContainingType": "ProxyController",
+    "Method": "Forward",
+    "RelativePath": "proxy",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "ProxyController",
+    "Method": "Forward",
+    "RelativePath": "proxy",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "ProxyController",
+    "Method": "Forward",
+    "RelativePath": "proxy",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "ProxyController",
+    "Method": "Forward",
+    "RelativePath": "proxy",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "ProxyController",
+    "Method": "Forward",
+    "RelativePath": "proxy",
+    "HttpMethod": "PATCH",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "MataaProxy.Controllers.TestController",
+    "Method": "Echo",
+    "RelativePath": "test/echo",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "MataaProxy.Controllers.TestController",
+    "Method": "EchoPost",
+    "RelativePath": "test/echo",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "MataaProxy.Controllers.TestController",
+    "Method": "Ping",
+    "RelativePath": "test/ping",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  }
+]

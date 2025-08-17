@@ -1,0 +1,94 @@
+﻿using MataaProxy.Middleware;
+using MataaProxy.Controllers;
+using System.Net.Security;
+using System.Security.Cryptography.X509Certificates;
+
+var builder = WebApplication.CreateBuilder(args);
+
+// Add services to the container.
+builder.Services.AddControllers();
+
+// Add HttpClient for proxy functionality
+builder.Services.AddHttpClient();
+
+// Configure HttpClient with enhanced HTTPS support for proxy controller
+builder.Services.AddHttpClient<ProxyController>(client =>
+{
+    client.Timeout = TimeSpan.FromMinutes(5); // 5 minute timeout
+    client.DefaultRequestHeaders.Add("User-Agent", "MataaProxy/1.0");
+})
+.ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler()
+{
+    AllowAutoRedirect = false, // Let the client handle redirects
+    UseCookies = false, // Don't manage cookies automatically
+    
+    // Enhanced HTTPS/SSL support
+    ServerCertificateCustomValidationCallback = (message, cert, chain, errors) =>
+    {
+        // In production, you might want to be more strict with certificate validation
+        // For now, we'll log certificate issues but allow the connection
+        if (errors != SslPolicyErrors.None)
+        {
+            var logger = builder.Services.BuildServiceProvider().GetService<ILogger<ProxyController>>();
+            logger?.LogWarning($"SSL Certificate validation failed for {message.RequestUri}: {errors}");
+        }
+        
+        // Return true to accept all certificates (like a VPN would)
+        // In production, consider implementing proper certificate validation
+        return true;
+    },
+    
+    // Support all SSL/TLS protocols
+    SslProtocols = System.Security.Authentication.SslProtocols.Tls12 | 
+                   System.Security.Authentication.SslProtocols.Tls13
+});
+
+// Configure HttpClient with enhanced HTTPS support for middleware
+builder.Services.AddHttpClient<ProxyMiddleware>(client =>
+{
+    client.Timeout = TimeSpan.FromMinutes(5);
+    client.DefaultRequestHeaders.Add("User-Agent", "MataaProxy/1.0");
+})
+.ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler()
+{
+    AllowAutoRedirect = false,
+    UseCookies = false,
+    
+    // Enhanced HTTPS/SSL support for middleware
+    ServerCertificateCustomValidationCallback = (message, cert, chain, errors) =>
+    {
+        if (errors != SslPolicyErrors.None)
+        {
+            var logger = builder.Services.BuildServiceProvider().GetService<ILogger<ProxyMiddleware>>();
+            logger?.LogWarning($"SSL Certificate validation failed for {message.RequestUri}: {errors}");
+        }
+        return true; // Accept all certificates for proxy functionality
+    },
+    
+    SslProtocols = System.Security.Authentication.SslProtocols.Tls12 | 
+                   System.Security.Authentication.SslProtocols.Tls13
+});
+
+// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+
+var app = builder.Build();
+
+// Configure the HTTP request pipeline.
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
+
+// Add proxy middleware before other middleware
+app.UseProxy();
+
+app.UseHttpsRedirection();
+
+app.UseAuthorization();
+
+app.MapControllers();
+
+app.Run();

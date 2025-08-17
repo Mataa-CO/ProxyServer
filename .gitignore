@@ -1,0 +1,6 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/.vs/ProxyServer/FileContentIndex/af40e4b0-5edb-4b8f-870e-391256c31780.vsidx
+*.vsidx

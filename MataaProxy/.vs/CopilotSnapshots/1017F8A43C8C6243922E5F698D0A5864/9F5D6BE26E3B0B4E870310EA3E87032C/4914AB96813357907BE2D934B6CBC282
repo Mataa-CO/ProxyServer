@@ -1,0 +1,181 @@
+﻿using System.Net;
+
+namespace MataaProxy.Middleware
+{
+    public class ProxyMiddleware
+    {
+        private readonly RequestDelegate _next;
+        private readonly HttpClient _httpClient;
+        private readonly ILogger<ProxyMiddleware> _logger;
+
+        public ProxyMiddleware(RequestDelegate next, HttpClient httpClient, ILogger<ProxyMiddleware> logger)
+        {
+            _next = next;
+            _httpClient = httpClient;
+            _logger = logger;
+        }
+
+        public async Task InvokeAsync(HttpContext context)
+        {
+            // Check if this is a proxy request (you can customize this logic)
+            var targetUrl = context.Request.Headers["X-Target-URL"].FirstOrDefault();
+            
+            if (!string.IsNullOrEmpty(targetUrl))
+            {
+                await HandleProxyRequest(context, targetUrl);
+                return;
+            }
+
+            // If not a proxy request, continue to next middleware
+            await _next(context);
+        }
+
+        private async Task HandleProxyRequest(HttpContext context, string targetUrl)
+        {
+            try
+            {
+                // Validate and prepare target URL
+                if (!targetUrl.StartsWith("http://") && !targetUrl.StartsWith("https://"))
+                {
+                    targetUrl = "https://" + targetUrl;
+                }
+
+                if (!Uri.IsWellFormedUriString(targetUrl, UriKind.Absolute))
+                {
+                    context.Response.StatusCode = 400;
+                    await context.Response.WriteAsync("Invalid target URL");
+                    return;
+                }
+
+                var targetUri = new Uri(targetUrl);
+                var fullTargetUrl = new Uri(targetUri, context.Request.Path + context.Request.QueryString);
+
+                // Create the forwarded request
+                var requestMessage = new HttpRequestMessage
+                {
+                    Method = new HttpMethod(context.Request.Method),
+                    RequestUri = fullTargetUrl
+                };
+
+                // Copy headers (excluding hop-by-hop headers)
+                foreach (var header in context.Request.Headers)
+                {
+                    if (IsAllowedHeader(header.Key) && header.Key != "X-Target-URL")
+                    {
+                        if (!requestMessage.Headers.TryAddWithoutValidation(header.Key, header.Value.ToArray()))
+                        {
+                            // If it fails to add to request headers, it might be a content header
+                            // We'll handle this when we create the content
+                        }
+                    }
+                }
+
+                // Copy request body
+                if (context.Request.ContentLength > 0 && context.Request.Body.CanRead)
+                {
+                    var bodyContent = new MemoryStream();
+                    await context.Request.Body.CopyToAsync(bodyContent);
+                    bodyContent.Position = 0;
+                    
+                    requestMessage.Content = new StreamContent(bodyContent);
+                    
+                    // Add content headers
+                    foreach (var header in context.Request.Headers)
+                    {
+                        if (IsContentHeader(header.Key))
+                        {
+                            requestMessage.Content.Headers.TryAddWithoutValidation(header.Key, header.Value.ToArray());
+                        }
+                    }
+                }
+
+                _logger.LogInformation($"Middleware forwarding {context.Request.Method} request to {fullTargetUrl}");
+
+                // Send the request
+                var response = await _httpClient.SendAsync(requestMessage);
+
+                // Set response status
+                context.Response.StatusCode = (int)response.StatusCode;
+
+                // Copy response headers
+                foreach (var header in response.Headers)
+                {
+                    if (IsAllowedResponseHeader(header.Key))
+                    {
+                        context.Response.Headers.TryAdd(header.Key, header.Value.ToArray());
+                    }
+                }
+
+                foreach (var header in response.Content.Headers)
+                {
+                    if (IsAllowedResponseHeader(header.Key))
+                    {
+                        context.Response.Headers.TryAdd(header.Key, header.Value.ToArray());
+                    }
+                }
+
+                // Copy response body
+                await response.Content.CopyToAsync(context.Response.Body);
+            }
+            catch (HttpRequestException ex)
+            {
+                _logger.LogError(ex, $"Error forwarding request to {targetUrl}");
+                context.Response.StatusCode = 502;
+                await context.Response.WriteAsync($"Bad Gateway: {ex.Message}");
+            }
+            catch (TaskCanceledException ex)
+            {
+                _logger.LogError(ex, $"Request to {targetUrl} timed out");
+                context.Response.StatusCode = 504;
+                await context.Response.WriteAsync("Gateway Timeout");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Unexpected error forwarding request to {targetUrl}");
+                context.Response.StatusCode = 500;
+                await context.Response.WriteAsync("Internal Server Error");
+            }
+        }
+
+        private static bool IsAllowedHeader(string headerName)
+        {
+            var excludedHeaders = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+            {
+                "Connection", "Upgrade", "Proxy-Authorization", "Proxy-Authenticate",
+                "Te", "Trailers", "Transfer-Encoding", "Host", "Content-Length", "Content-Type"
+            };
+
+            return !excludedHeaders.Contains(headerName);
+        }
+
+        private static bool IsContentHeader(string headerName)
+        {
+            var contentHeaders = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+            {
+                "Content-Type", "Content-Length", "Content-Encoding", "Content-Language",
+                "Content-Location", "Content-MD5", "Content-Range", "Content-Disposition"
+            };
+
+            return contentHeaders.Contains(headerName);
+        }
+
+        private static bool IsAllowedResponseHeader(string headerName)
+        {
+            var excludedHeaders = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+            {
+                "Transfer-Encoding", "Connection", "Upgrade", "Proxy-Authorization",
+                "Proxy-Authenticate", "Te", "Trailers"
+            };
+
+            return !excludedHeaders.Contains(headerName);
+        }
+    }
+
+    public static class ProxyMiddlewareExtensions
+    {
+        public static IApplicationBuilder UseProxy(this IApplicationBuilder builder)
+        {
+            return builder.UseMiddleware<ProxyMiddleware>();
+        }
+    }
+}

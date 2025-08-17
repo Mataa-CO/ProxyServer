@@ -1,0 +1,161 @@
+﻿using Microsoft.AspNetCore.Mvc;
+using System.Text;
+
+namespace MataaProxy.Controllers
+{
+    [ApiController]
+    [Route("proxy")]
+    public class ProxyController : ControllerBase
+    {
+        private readonly HttpClient _httpClient;
+        private readonly ILogger<ProxyController> _logger;
+
+        public ProxyController(HttpClient httpClient, ILogger<ProxyController> logger)
+        {
+            _httpClient = httpClient;
+            _logger = logger;
+        }
+
+        [HttpGet("{*url}")]
+        [HttpPost("{*url}")]
+        [HttpPut("{*url}")]
+        [HttpDelete("{*url}")]
+        [HttpPatch("{*url}")]
+        [HttpOptions("{*url}")]
+        [HttpHead("{*url}")]
+        public async Task<IActionResult> ProxyRequest(string url)
+        {
+            try
+            {
+                // Validate URL
+                if (string.IsNullOrEmpty(url))
+                {
+                    return BadRequest("URL is required");
+                }
+
+                // Ensure URL has proper scheme
+                if (!url.StartsWith("http://") && !url.StartsWith("https://"))
+                {
+                    url = "https://" + url;
+                }
+
+                if (!Uri.IsWellFormedUriString(url, UriKind.Absolute))
+                {
+                    return BadRequest("Invalid URL format");
+                }
+
+                var targetUri = new Uri(url);
+
+                // Create the forwarded request
+                var requestMessage = new HttpRequestMessage
+                {
+                    Method = new HttpMethod(Request.Method),
+                    RequestUri = new Uri(targetUri, Request.QueryString.Value ?? string.Empty)
+                };
+
+                // Copy headers from the original request (excluding hop-by-hop headers)
+                foreach (var header in Request.Headers)
+                {
+                    if (IsAllowedHeader(header.Key))
+                    {
+                        if (!requestMessage.Headers.TryAddWithoutValidation(header.Key, header.Value.ToArray()))
+                        {
+                            // If it fails to add to request headers, try content headers
+                            if (requestMessage.Content != null)
+                            {
+                                requestMessage.Content.Headers.TryAddWithoutValidation(header.Key, header.Value.ToArray());
+                            }
+                        }
+                    }
+                }
+
+                // Copy request body if present
+                if (Request.ContentLength > 0 && Request.Body.CanRead)
+                {
+                    var bodyContent = new MemoryStream();
+                    await Request.Body.CopyToAsync(bodyContent);
+                    bodyContent.Position = 0;
+                    
+                    requestMessage.Content = new StreamContent(bodyContent);
+                    
+                    // Copy content type
+                    if (Request.ContentType != null)
+                    {
+                        requestMessage.Content.Headers.TryAddWithoutValidation("Content-Type", Request.ContentType);
+                    }
+                }
+
+                _logger.LogInformation($"Forwarding {Request.Method} request to {requestMessage.RequestUri}");
+
+                // Send the request
+                var response = await _httpClient.SendAsync(requestMessage);
+
+                // Create response
+                var result = new ContentResult
+                {
+                    StatusCode = (int)response.StatusCode,
+                    Content = await response.Content.ReadAsStringAsync(),
+                    ContentType = response.Content.Headers.ContentType?.ToString()
+                };
+
+                // Copy response headers
+                foreach (var header in response.Headers)
+                {
+                    if (IsAllowedResponseHeader(header.Key))
+                    {
+                        Response.Headers.TryAdd(header.Key, header.Value.ToArray());
+                    }
+                }
+
+                foreach (var header in response.Content.Headers)
+                {
+                    if (IsAllowedResponseHeader(header.Key) && header.Key != "Content-Type")
+                    {
+                        Response.Headers.TryAdd(header.Key, header.Value.ToArray());
+                    }
+                }
+
+                return result;
+            }
+            catch (HttpRequestException ex)
+            {
+                _logger.LogError(ex, $"Error forwarding request to {url}");
+                return StatusCode(502, $"Bad Gateway: {ex.Message}");
+            }
+            catch (TaskCanceledException ex)
+            {
+                _logger.LogError(ex, $"Request to {url} timed out");
+                return StatusCode(504, "Gateway Timeout");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Unexpected error forwarding request to {url}");
+                return StatusCode(500, "Internal Server Error");
+            }
+        }
+
+        private static bool IsAllowedHeader(string headerName)
+        {
+            // Exclude hop-by-hop headers and headers that should not be forwarded
+            var excludedHeaders = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+            {
+                "Connection", "Upgrade", "Proxy-Authorization", "Proxy-Authenticate",
+                "Te", "Trailers", "Transfer-Encoding", "Host"
+            };
+
+            return !excludedHeaders.Contains(headerName);
+        }
+
+        private static bool IsAllowedResponseHeader(string headerName)
+        {
+            // Exclude headers that might cause issues when forwarding
+            var excludedHeaders = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+            {
+                "Transfer-Encoding", "Connection", "Upgrade", "Proxy-Authorization",
+                "Proxy-Authenticate", "Te", "Trailers"
+            };
+
+            return !excludedHeaders.Contains(headerName);
+        }
+    }
+}

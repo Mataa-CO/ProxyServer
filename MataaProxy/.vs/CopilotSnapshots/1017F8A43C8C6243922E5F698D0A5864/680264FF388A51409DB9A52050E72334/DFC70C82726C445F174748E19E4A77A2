@@ -1,0 +1,72 @@
+﻿# MataaProxy - HTTP Proxy Server
+
+This ASP.NET Core application acts as an HTTP proxy that forwards requests to target URLs and returns the responses.
+
+## Usage Methods
+
+### Method 1: Using the Proxy Controller (Recommended)
+
+Send requests to: `https://yourproxy.com/proxy/{target-url}`
+
+Examples:
+- `GET https://yourproxy.com/proxy/google.com` - Forwards to Google
+- `POST https://yourproxy.com/proxy/httpbin.org/post` - Forwards POST request to httpbin
+- `GET https://yourproxy.com/proxy/api.github.com/users/octocat` - Forwards to GitHub API
+
+### Method 2: Using the Middleware with Header
+
+Send requests to any endpoint with the `X-Target-URL` header:
+
+```bash
+curl -H "X-Target-URL: google.com" https://yourproxy.com/any-path
+```
+
+## Features
+
+- ✅ Forwards all HTTP methods (GET, POST, PUT, DELETE, PATCH, OPTIONS, HEAD)
+- ✅ Preserves request headers (except hop-by-hop headers)
+- ✅ Forwards request body and query parameters
+- ✅ Returns original response headers and body
+- ✅ Handles both HTTP and HTTPS targets
+- ✅ Auto-adds HTTPS scheme if not specified
+- ✅ Proper error handling (502 Bad Gateway, 504 Timeout, etc.)
+- ✅ Logging for debugging
+
+## Examples
+
+### Forward a simple GET request
+```bash
+curl https://yourproxy.com/proxy/jsonplaceholder.typicode.com/posts/1
+```
+
+### Forward a POST request with data
+```bash
+curl -X POST \
+  https://yourproxy.com/proxy/httpbin.org/post \
+  -H "Content-Type: application/json" \
+  -d '{"key": "value"}'
+```
+
+### Using middleware approach
+```bash
+curl -H "X-Target-URL: httpbin.org/get" \
+     -H "Authorization: Bearer token123" \
+     https://yourproxy.com/
+```
+
+## Security Considerations
+
+⚠️ **Warning**: This proxy forwards requests to any URL. In production, consider:
+- Adding URL whitelisting/blacklisting
+- Authentication and authorization
+- Rate limiting
+- Request size limits
+- Monitoring and logging
+
+## Configuration
+
+The proxy is configured with:
+- 5-minute timeout for requests
+- Auto-redirect disabled (lets client handle redirects)
+- Cookie management disabled
+- Custom User-Agent: "MataaProxy/1.0"

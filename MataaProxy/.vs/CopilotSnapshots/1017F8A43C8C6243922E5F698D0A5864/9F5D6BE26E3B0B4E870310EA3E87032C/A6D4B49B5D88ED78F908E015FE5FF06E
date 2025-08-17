@@ -1,0 +1,44 @@
+﻿// Example usage of MataaProxy
+
+// 1. Using the controller approach - append target URL to /proxy/ path
+// GET request to Google through proxy
+fetch('https://yourproxy.com/proxy/google.com')
+  .then(response => response.text())
+  .then(data => console.log(data));
+
+// POST request with JSON data
+fetch('https://yourproxy.com/proxy/httpbin.org/post', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+  body: JSON.stringify({ message: 'Hello from proxy!' })
+})
+  .then(response => response.json())
+  .then(data => console.log(data));
+
+// 2. Using the middleware approach - set X-Target-URL header
+fetch('https://yourproxy.com/any-path', {
+  headers: {
+    'X-Target-URL': 'api.github.com/users/octocat',
+    'Authorization': 'Bearer your-token'
+  }
+})
+  .then(response => response.json())
+  .then(data => console.log(data));
+
+// 3. Proxy a file download
+fetch('https://yourproxy.com/proxy/example.com/file.pdf')
+  .then(response => response.blob())
+  .then(blob => {
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'file.pdf';
+    a.click();
+  });
+
+// 4. Test if proxy is working
+fetch('https://yourproxy.com/test/ping')
+  .then(response => response.json())
+  .then(data => console.log('Proxy status:', data));

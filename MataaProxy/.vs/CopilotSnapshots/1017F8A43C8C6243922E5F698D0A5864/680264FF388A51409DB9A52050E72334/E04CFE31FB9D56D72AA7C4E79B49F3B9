@@ -1,0 +1,58 @@
+﻿using MataaProxy.Middleware;
+using MataaProxy.Controllers;
+
+var builder = WebApplication.CreateBuilder(args);
+
+// Add services to the container.
+builder.Services.AddControllers();
+
+// Add HttpClient for proxy functionality
+builder.Services.AddHttpClient();
+
+// Configure HttpClient with custom settings for proxy
+builder.Services.AddHttpClient<ProxyController>(client =>
+{
+    client.Timeout = TimeSpan.FromMinutes(5); // 5 minute timeout
+    client.DefaultRequestHeaders.Add("User-Agent", "MataaProxy/1.0");
+})
+.ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler()
+{
+    AllowAutoRedirect = false, // Let the client handle redirects
+    UseCookies = false // Don't manage cookies automatically
+});
+
+// Add HttpClient for middleware
+builder.Services.AddHttpClient<ProxyMiddleware>(client =>
+{
+    client.Timeout = TimeSpan.FromMinutes(5);
+    client.DefaultRequestHeaders.Add("User-Agent", "MataaProxy/1.0");
+})
+.ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler()
+{
+    AllowAutoRedirect = false,
+    UseCookies = false
+});
+
+// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+
+var app = builder.Build();
+
+// Configure the HTTP request pipeline.
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
+
+// Add proxy middleware before other middleware
+app.UseProxy();
+
+app.UseHttpsRedirection();
+
+app.UseAuthorization();
+
+app.MapControllers();
+
+app.Run();
