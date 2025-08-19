@@ -141,7 +141,7 @@ jobs:
 
                  
                   echo "${{ env.DOCKERHUB_TOKEN }}" | docker login --username "${{ env.DOCKERHUB_USERNAME }}" --password-stdin
-                    docker pull ${{ env.DOCKERHUB_USERNAME }}/ems:vms-latest
+                    docker pull ${{ env.DOCKERHUB_USERNAME }}/ems:mataaproxy-latest
                     docker stop MataaProxy || true
                     docker rm MataaProxy || true
                      docker run -d --restart=always --name MataaProxy -p 5292:5292  mataaa/ems:mataaproxy-latest
