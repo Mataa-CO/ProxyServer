@@ -57,7 +57,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: output
-          path: output
+          path: ./output/
       - name: Setup SSH Key
         run: |
           mkdir -p ~/.ssh
