@@ -1,18 +1,14 @@
 {
   "Version": 1,
-  "WorkspaceRootPath": "C:\\Users\\HP\\source\\repos\\MataaProxy\\",
+  "WorkspaceRootPath": "C:\\Users\\HP\\source\\repos\\ProxyServer\\MataaProxy\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{F5839AF1-B956-4AEC-AB7A-647BE0D3AB02}|MataaProxy\\MataaProxy.csproj|c:\\users\\hp\\source\\repos\\mataaproxy\\mataaproxy\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{F5839AF1-B956-4AEC-AB7A-647BE0D3AB02}|MataaProxy\\MataaProxy.csproj|solutionrelative:mataaproxy\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{F5839AF1-B956-4AEC-AB7A-647BE0D3AB02}|MataaProxy\\MataaProxy.csproj|c:\\users\\hp\\source\\repos\\mataaproxy\\mataaproxy\\controllers\\proxycontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{F5839AF1-B956-4AEC-AB7A-647BE0D3AB02}|MataaProxy\\MataaProxy.csproj|c:\\users\\hp\\source\\repos\\proxyserver\\mataaproxy\\mataaproxy\\controllers\\proxycontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{F5839AF1-B956-4AEC-AB7A-647BE0D3AB02}|MataaProxy\\MataaProxy.csproj|solutionrelative:mataaproxy\\controllers\\proxycontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{F5839AF1-B956-4AEC-AB7A-647BE0D3AB02}|MataaProxy\\MataaProxy.csproj|c:\\users\\hp\\source\\repos\\mataaproxy\\mataaproxy\\controllers\\testcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{F5839AF1-B956-4AEC-AB7A-647BE0D3AB02}|MataaProxy\\MataaProxy.csproj|solutionrelative:mataaproxy\\controllers\\testcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{F5839AF1-B956-4AEC-AB7A-647BE0D3AB02}|MataaProxy\\MataaProxy.csproj|c:\\users\\hp\\source\\repos\\proxyserver\\mataaproxy\\mataaproxy\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{F5839AF1-B956-4AEC-AB7A-647BE0D3AB02}|MataaProxy\\MataaProxy.csproj|solutionrelative:mataaproxy\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -66,40 +62,28 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "TestController.cs",
-              "DocumentMoniker": "C:\\Users\\HP\\source\\repos\\MataaProxy\\MataaProxy\\Controllers\\TestController.cs",
-              "RelativeDocumentMoniker": "MataaProxy\\Controllers\\TestController.cs",
-              "ToolTip": "C:\\Users\\HP\\source\\repos\\MataaProxy\\MataaProxy\\Controllers\\TestController.cs",
-              "RelativeToolTip": "MataaProxy\\Controllers\\TestController.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAADsAAAABAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-08-17T11:12:56.296Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 1,
               "Title": "Program.cs",
-              "DocumentMoniker": "C:\\Users\\HP\\source\\repos\\MataaProxy\\MataaProxy\\Program.cs",
+              "DocumentMoniker": "C:\\Users\\HP\\source\\repos\\ProxyServer\\MataaProxy\\MataaProxy\\Program.cs",
               "RelativeDocumentMoniker": "MataaProxy\\Program.cs",
-              "ToolTip": "C:\\Users\\HP\\source\\repos\\MataaProxy\\MataaProxy\\Program.cs",
+              "ToolTip": "C:\\Users\\HP\\source\\repos\\ProxyServer\\MataaProxy\\MataaProxy\\Program.cs",
               "RelativeToolTip": "MataaProxy\\Program.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABQAAAAVAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAoAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-08-17T11:11:55.085Z",
+              "WhenOpened": "2025-08-19T11:57:38.554Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 0,
               "Title": "ProxyController.cs",
-              "DocumentMoniker": "C:\\Users\\HP\\source\\repos\\MataaProxy\\MataaProxy\\Controllers\\ProxyController.cs",
+              "DocumentMoniker": "C:\\Users\\HP\\source\\repos\\ProxyServer\\MataaProxy\\MataaProxy\\Controllers\\ProxyController.cs",
               "RelativeDocumentMoniker": "MataaProxy\\Controllers\\ProxyController.cs",
-              "ToolTip": "C:\\Users\\HP\\source\\repos\\MataaProxy\\MataaProxy\\Controllers\\ProxyController.cs",
+              "ToolTip": "C:\\Users\\HP\\source\\repos\\ProxyServer\\MataaProxy\\MataaProxy\\Controllers\\ProxyController.cs",
               "RelativeToolTip": "MataaProxy\\Controllers\\ProxyController.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABEAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABAAAAAEAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-08-17T11:11:09.375Z",
+              "WhenOpened": "2025-08-17T11:29:46.255Z",
               "EditorCaption": ""
             }
           ]
