@@ -7,18 +7,18 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
 # Copy the project file and restore dependencies
-COPY ["MataaProxy/MataaProxy.csproj", "./"]
+COPY ["MataaProxy/MataaProxy/MataaProxy.csproj", "./"]
 RUN dotnet restore "./MataaProxy.csproj"
 
 # Copy the entire source code
 COPY . .
 
 # Build the project in Release mode
-RUN dotnet build "MataaProxy/MataaProxy.csproj" -c Release -o /app/build
+RUN dotnet build "MataaProxy/MataaProxy/MataaProxy.csproj" -c Release -o /app/build
 
 # Publish the app
 FROM build AS publish
-RUN dotnet publish "MataaProxy/MataaProxy.csproj" -c Release -o /app/publish
+RUN dotnet publish "MataaProxy/MataaProxy/MataaProxy.csproj" -c Release -o /app/publish
 
 # Final stage: Run the published app
 FROM base AS final
