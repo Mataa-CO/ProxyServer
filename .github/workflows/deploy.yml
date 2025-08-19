@@ -122,7 +122,7 @@ jobs:
       - name: Build and push MataaProxy Docker image
         # This step builds the Docker image and pushes it to Docker Hub
         run: |
-              docker build Dockerfile -t ${{ env.DOCKERHUB_USERNAME }}/ems:mataaproxy-latest .
+              docker build -f MataaProxy/MataaProxy/Dockerfile -t ${{ env.DOCKERHUB_USERNAME }}/ems:mataaproxy-latest .
               docker push ${{ env.DOCKERHUB_USERNAME }}/ems:mataaproxy-latest
   deploy-to-vps:
    name: Deploy MataaProxy to  VPS
