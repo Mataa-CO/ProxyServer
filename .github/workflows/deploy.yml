@@ -103,7 +103,7 @@ jobs:
                 
   build-docker-image:
     if: github.ref == 'refs/heads/main' 
-    name: Build and Push VMS Docker Image
+    name: Build and Push MataaProxy Docker Image
     runs-on: ubuntu-latest
 
     steps:
@@ -119,10 +119,10 @@ jobs:
           username: ${{ env.DOCKERHUB_USERNAME }}
           password: ${{ env.DOCKERHUB_TOKEN }}
 
-      - name: Build and push VMS Docker image
+      - name: Build and push MataaProxy Docker image
         # This step builds the Docker image and pushes it to Docker Hub
         run: |
-              docker build -f MataaProxy/MataaProxy/Dockerfile -t ${{ env.DOCKERHUB_USERNAME }}/ems:mataaproxy-latest .
+              docker build -f Dockerfile -t ${{ env.DOCKERHUB_USERNAME }}/ems:mataaproxy-latest .
               docker push ${{ env.DOCKERHUB_USERNAME }}/ems:mataaproxy-latest
   deploy-to-vps:
    name: Deploy VMS to  VPS
