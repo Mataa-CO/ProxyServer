@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("MataaProxy")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+d6e2e72b5c31a6cf94ccb24e12afe21f198d09c2")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+d0c77f2fb1ede6e625f55c1ccf39d97d31ecc13e")]
 [assembly: System.Reflection.AssemblyProductAttribute("MataaProxy")]
 [assembly: System.Reflection.AssemblyTitleAttribute("MataaProxy")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

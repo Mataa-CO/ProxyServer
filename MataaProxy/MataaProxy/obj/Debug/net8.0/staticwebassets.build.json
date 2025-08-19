@@ -1,1 +1,11 @@
-{"Version":1,"Hash":"Ac/wOIUcKTzmHaAv+Jyr9WOh2Vqi82eloyODzhKx+uo=","Source":"MataaProxy","BasePath":"_content/MataaProxy","Mode":"Default","ManifestType":"Build","ReferencedProjectsConfiguration":[],"DiscoveryPatterns":[],"Assets":[],"Endpoints":[]}
+{
+  "Version": 1,
+  "Hash": "DX21atHL5jjSAiuasIrHueG8BKu4iSZvI3+eaoJZz/c=",
+  "Source": "MataaProxy",
+  "BasePath": "_content/MataaProxy",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": []
+}
