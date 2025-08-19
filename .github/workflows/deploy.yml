@@ -57,7 +57,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: output
-          path: output
+          path: ./output/
       - name: Setup SSH Key
         run: |
           mkdir -p ~/.ssh
@@ -72,7 +72,7 @@ jobs:
           key: ${{ secrets.DEPLOY_KEY }}
         
       - name: Copy build Files
-        run: rsync -avz --delete -e "ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no" /output/ ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}:/var/MataaProxy/
+        run: rsync -avz --delete -e "ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no" ./output/ ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}:/var/MataaProxy/
       - name: Restart  MataaProxy Service
         uses: appleboy/ssh-action@v0.1.7
         with:
