@@ -8,6 +8,8 @@ on:
 
 env:
   DEPLOY_KEY: ${{ secrets.DEPLOY_KEY }}
+  DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+  DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
   PROJECT_NAME: MataaProxy
 
 
