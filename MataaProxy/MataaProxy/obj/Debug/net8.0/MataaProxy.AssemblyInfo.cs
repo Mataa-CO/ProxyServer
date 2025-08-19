@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("MataaProxy")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+f6f1f40d464c115ffaedad94e0f15dc76909ba08")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+d6e2e72b5c31a6cf94ccb24e12afe21f198d09c2")]
 [assembly: System.Reflection.AssemblyProductAttribute("MataaProxy")]
 [assembly: System.Reflection.AssemblyTitleAttribute("MataaProxy")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

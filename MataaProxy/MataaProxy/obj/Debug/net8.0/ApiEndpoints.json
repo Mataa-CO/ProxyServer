@@ -48,5 +48,45 @@
     "Order": 0,
     "Parameters": [],
     "ReturnTypes": []
+  },
+  {
+    "ContainingType": "MataaProxy.Controllers.TestController",
+    "Method": "Echo",
+    "RelativePath": "test/echo",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "MataaProxy.Controllers.TestController",
+    "Method": "EchoPost",
+    "RelativePath": "test/echo",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "MataaProxy.Controllers.TestController",
+    "Method": "Ping",
+    "RelativePath": "test/ping",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "MataaProxy.Controllers.TestController",
+    "Method": "ProxyTest",
+    "RelativePath": "test/proxy-test",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
   }
 ]
