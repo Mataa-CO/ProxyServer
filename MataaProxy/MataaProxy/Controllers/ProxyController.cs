@@ -1,18 +1,30 @@
 using Microsoft.AspNetCore.Mvc;
 using System.Net.Http.Headers;
-
+using MataaProxy.Controllers;
 [Route("proxy")]
 [ApiController]
 public class ProxyController : ControllerBase
 {
+    private static readonly HashSet<string> ExcludedRequestHeaders = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "Connection", "Proxy-Connection", "Keep-Alive", "Transfer-Encoding", "TE", "Trailer", "Upgrade",
+        "Proxy-Authorization", "Proxy-Authenticate", "Host", "Content-Length"
+    };
+
+    private static readonly HashSet<string> ExcludedResponseHeaders = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "Connection", "Proxy-Connection", "Keep-Alive", "Transfer-Encoding", "TE", "Trailer", "Upgrade",
+        "Proxy-Authorization", "Proxy-Authenticate", "Content-Length", "Content-Type"
+    };
+
     private readonly HttpClient _httpClient;
 
     public ProxyController(IHttpClientFactory httpClientFactory)
     {
-        _httpClient = httpClientFactory.CreateClient();
+        _httpClient = httpClientFactory.CreateClient("UnsafeProxy");
     }
 
-    [HttpGet, HttpPost, HttpPut, HttpDelete, HttpPatch]
+    [HttpGet, HttpPost, HttpPut, HttpDelete, HttpPatch, HttpOptions, HttpHead]
     public async Task<IActionResult> Forward()
     {
         var targetUrl = Request.Query["url"].ToString();
@@ -26,34 +38,67 @@ public class ProxyController : ControllerBase
             RequestUri = new Uri(targetUrl)
         };
 
+        if (Request.ContentLength.HasValue && Request.ContentLength.Value > 0)
+        {
+            requestMessage.Content = new StreamContent(Request.Body);
+
+            if (!string.IsNullOrEmpty(Request.ContentType))
+            {
+                requestMessage.Content.Headers.ContentType = MediaTypeHeaderValue.Parse(Request.ContentType);
+            }
+
+            foreach (var header in Request.Headers)
+            {
+                if (header.Key.StartsWith("Content-", StringComparison.OrdinalIgnoreCase) &&
+                    !string.Equals(header.Key, "Content-Length", StringComparison.OrdinalIgnoreCase))
+                {
+                    requestMessage.Content.Headers.TryAddWithoutValidation(header.Key, header.Value.ToArray());
+                }
+            }
+        }
+
         foreach (var header in Request.Headers)
         {
-            if (!requestMessage.Headers.TryAddWithoutValidation(header.Key, header.Value.ToArray()))
-                requestMessage.Content?.Headers.TryAddWithoutValidation(header.Key, header.Value.ToArray());
+            if (ExcludedRequestHeaders.Contains(header.Key))
+                continue;
+
+            if (header.Key.StartsWith("Content-", StringComparison.OrdinalIgnoreCase))
+                continue;
+
+            requestMessage.Headers.TryAddWithoutValidation(header.Key, header.Value.ToArray());
         }
 
-        if (Request.ContentLength > 0)
-        {
-            using var reader = new StreamReader(Request.Body);
-            var body = await reader.ReadToEndAsync();
-            requestMessage.Content = new StringContent(body);
-
-            if (Request.ContentType != null)
-                requestMessage.Content.Headers.ContentType = MediaTypeHeaderValue.Parse(Request.ContentType);
-        }
-
-        var responseMessage = await _httpClient.SendAsync(requestMessage);
-
-        var content = await responseMessage.Content.ReadAsByteArrayAsync();
-
-        foreach (var header in responseMessage.Headers)
-            Response.Headers[header.Key] = header.Value.ToArray();
-
-        foreach (var header in responseMessage.Content.Headers)
-            Response.Headers[header.Key] = header.Value.ToArray();
+        using var responseMessage = await _httpClient.SendAsync(
+            requestMessage,
+            HttpCompletionOption.ResponseHeadersRead,
+            HttpContext.RequestAborted);
 
         Response.StatusCode = (int)responseMessage.StatusCode;
 
-        return File(content, responseMessage.Content.Headers.ContentType?.ToString() ?? "application/octet-stream");
+        foreach (var header in responseMessage.Headers)
+        {
+            if (!ExcludedResponseHeaders.Contains(header.Key))
+            {
+                Response.Headers[header.Key] = header.Value.ToArray();
+            }
+        }
+
+        foreach (var header in responseMessage.Content.Headers)
+        {
+            if (!ExcludedResponseHeaders.Contains(header.Key))
+            {
+                Response.Headers[header.Key] = header.Value.ToArray();
+            }
+        }
+
+        var contentType = responseMessage.Content.Headers.ContentType?.ToString();
+        if (!string.IsNullOrWhiteSpace(contentType))
+        {
+            Response.ContentType = contentType;
+        }
+
+        await responseMessage.Content.CopyToAsync(Response.Body, HttpContext.RequestAborted);
+
+        return new EmptyResult();
     }
 }

@@ -6,7 +6,12 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 
 builder.Services.AddHttpClient();
-
+// In your Startup.cs or Program.cs
+builder.Services.AddHttpClient("UnsafeHttpClient")
+    .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
+    {
+        ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => true
+    });
 
 builder.Services.AddCors(options => options.AddPolicy("Policy_Allow_All",
                 builder =>
