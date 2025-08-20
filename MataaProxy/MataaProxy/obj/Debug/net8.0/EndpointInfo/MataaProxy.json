@@ -1,8 +1,9 @@
 {
   "openapi": "3.0.1",
   "info": {
-    "title": "MataaProxy",
-    "version": "1.0"
+    "title": "MataaProxy API",
+    "description": "HTTP/HTTPS Proxy Server API",
+    "version": "v1"
   },
   "paths": {
     "/proxy": {
@@ -47,6 +48,26 @@
         }
       },
       "patch": {
+        "tags": [
+          "Proxy"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "options": {
+        "tags": [
+          "Proxy"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "head": {
         "tags": [
           "Proxy"
         ],

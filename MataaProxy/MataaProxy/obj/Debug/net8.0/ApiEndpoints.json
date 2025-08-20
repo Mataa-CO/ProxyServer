@@ -50,6 +50,26 @@
     "ReturnTypes": []
   },
   {
+    "ContainingType": "ProxyController",
+    "Method": "Forward",
+    "RelativePath": "proxy",
+    "HttpMethod": "OPTIONS",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "ProxyController",
+    "Method": "Forward",
+    "RelativePath": "proxy",
+    "HttpMethod": "HEAD",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
     "ContainingType": "MataaProxy.Controllers.TestController",
     "Method": "Echo",
     "RelativePath": "test/echo",

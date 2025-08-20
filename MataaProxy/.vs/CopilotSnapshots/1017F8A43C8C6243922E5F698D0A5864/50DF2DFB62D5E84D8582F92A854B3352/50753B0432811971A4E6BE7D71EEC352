@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using System.Net.Http.Headers;
 
 [Route("proxy")]
@@ -21,6 +21,7 @@ public class ProxyController : ControllerBase
 
     public ProxyController(IHttpClientFactory httpClientFactory)
     {
+        // Use the named client configured to accept any SSL certificate
         _httpClient = httpClientFactory.CreateClient("UnsafeProxy");
     }
 
@@ -38,10 +39,13 @@ public class ProxyController : ControllerBase
             RequestUri = new Uri(targetUrl)
         };
 
+        // If there is a request body, forward it as a stream to preserve binary content
         if (Request.ContentLength.HasValue && Request.ContentLength.Value > 0)
         {
+            // Do not read to string. Stream directly.
             requestMessage.Content = new StreamContent(Request.Body);
 
+            // Forward content headers
             if (!string.IsNullOrEmpty(Request.ContentType))
             {
                 requestMessage.Content.Headers.ContentType = MediaTypeHeaderValue.Parse(Request.ContentType);
@@ -57,24 +61,29 @@ public class ProxyController : ControllerBase
             }
         }
 
+        // Copy request headers (excluding hop-by-hop and content-specific headers handled above)
         foreach (var header in Request.Headers)
         {
             if (ExcludedRequestHeaders.Contains(header.Key))
                 continue;
 
+            // Skip content headers here; already handled when content exists
             if (header.Key.StartsWith("Content-", StringComparison.OrdinalIgnoreCase))
                 continue;
 
             requestMessage.Headers.TryAddWithoutValidation(header.Key, header.Value.ToArray());
         }
 
+        // Send the request and begin streaming the response
         using var responseMessage = await _httpClient.SendAsync(
             requestMessage,
             HttpCompletionOption.ResponseHeadersRead,
             HttpContext.RequestAborted);
 
+        // Set status code
         Response.StatusCode = (int)responseMessage.StatusCode;
 
+        // Copy response headers (exclude hop-by-hop and content headers that are set explicitly)
         foreach (var header in responseMessage.Headers)
         {
             if (!ExcludedResponseHeaders.Contains(header.Key))
@@ -91,14 +100,17 @@ public class ProxyController : ControllerBase
             }
         }
 
+        // Set the Content-Type explicitly
         var contentType = responseMessage.Content.Headers.ContentType?.ToString();
         if (!string.IsNullOrWhiteSpace(contentType))
         {
             Response.ContentType = contentType;
         }
 
+        // Stream the response body directly to the client
         await responseMessage.Content.CopyToAsync(Response.Body, HttpContext.RequestAborted);
 
+        // We have already written the response body and headers
         return new EmptyResult();
     }
 }

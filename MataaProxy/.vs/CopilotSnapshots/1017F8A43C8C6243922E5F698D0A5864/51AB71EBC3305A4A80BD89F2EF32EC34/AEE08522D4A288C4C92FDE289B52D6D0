@@ -1,19 +1,19 @@
-using System.Net.Security;
+﻿using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 
-// Configure HttpClientFactory
 builder.Services.AddHttpClient();
 
-// Add a named HttpClient that accepts any SSL certificate (use with caution in production)
-builder.Services.AddHttpClient("UnsafeProxy")
-    .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
-    {
-        ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
-    });
+var handler = new HttpClientHandler
+{
+    ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
+};
+
+using var httpClient = new HttpClient(handler);
+// Your request code here
 
 builder.Services.AddCors(options => options.AddPolicy("Policy_Allow_All",
                 builder =>
