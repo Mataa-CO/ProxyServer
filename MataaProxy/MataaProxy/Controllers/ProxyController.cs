@@ -42,18 +42,23 @@ public class ProxyController : ControllerBase
         {
             requestMessage.Content = new StreamContent(Request.Body);
 
-            if (!string.IsNullOrEmpty(Request.ContentType))
+            // Set Content-Type to 'application/json' exactly if the incoming request is JSON
+            if (!string.IsNullOrEmpty(Request.ContentType) &&
+                Request.ContentType.StartsWith("application/json", StringComparison.OrdinalIgnoreCase))
             {
-                requestMessage.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json")
-                {
-                    CharSet = "utf-8"
-                };
+                requestMessage.Content.Headers.Remove("Content-Type");
+                requestMessage.Content.Headers.TryAddWithoutValidation("Content-Type", "application/json");
+            }
+            else if (!string.IsNullOrEmpty(Request.ContentType))
+            {
+                requestMessage.Content.Headers.ContentType = new MediaTypeHeaderValue(Request.ContentType);
             }
 
             foreach (var header in Request.Headers)
             {
                 if (header.Key.StartsWith("Content-", StringComparison.OrdinalIgnoreCase) &&
-                    !string.Equals(header.Key, "Content-Length", StringComparison.OrdinalIgnoreCase))
+                    !string.Equals(header.Key, "Content-Length", StringComparison.OrdinalIgnoreCase) &&
+                    !string.Equals(header.Key, "Content-Type", StringComparison.OrdinalIgnoreCase))
                 {
                     requestMessage.Content.Headers.TryAddWithoutValidation(header.Key, header.Value.ToArray());
                 }
@@ -94,7 +99,7 @@ public class ProxyController : ControllerBase
             }
         }
 
-        var contentType = responseMessage.Content.Headers.ContentType?.ToString();
+        var contentType = responseMessage.Content.Headers.ContentType?.MediaType;
         if (!string.IsNullOrWhiteSpace(contentType))
         {
             Response.ContentType = contentType;
