@@ -5,14 +5,12 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 
-// Configure HttpClientFactory
 builder.Services.AddHttpClient();
-
-// Add a named HttpClient that accepts any SSL certificate (use with caution in production)
-builder.Services.AddHttpClient("UnsafeProxy")
+// In your Startup.cs or Program.cs
+builder.Services.AddHttpClient("UnsafeHttpClient")
     .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
     {
-        ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
+        ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => true
     });
 
 builder.Services.AddCors(options => options.AddPolicy("Policy_Allow_All",
@@ -27,28 +25,15 @@ builder.Services.AddCors(options => options.AddPolicy("Policy_Allow_All",
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(c =>
-{
-    c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo 
-    { 
-        Title = "MataaProxy API", 
-        Version = "v1",
-        Description = "HTTP/HTTPS Proxy Server API"
-    });
-});
+builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
-
-// Enable Swagger in all environments (you can customize this as needed)
 app.UseSwagger();
 app.UseSwaggerUI(c =>
 {
-    c.SwaggerEndpoint("/swagger/v1/swagger.json", "MataaProxy API v1");
-    c.RoutePrefix = string.Empty; // Makes Swagger UI available at root URL
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "MataaProxy API V1");
+    c.RoutePrefix = "swagger"; // optional, /swagger is default
 });
-
-// Enable CORS
-app.UseCors("Policy_Allow_All");
 
 app.UseHttpsRedirection();
 

@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using System.Net.Http.Headers;
-
+using MataaProxy.Controllers;
 [Route("proxy")]
 [ApiController]
 public class ProxyController : ControllerBase
