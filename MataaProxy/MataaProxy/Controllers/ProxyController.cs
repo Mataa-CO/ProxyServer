@@ -44,7 +44,10 @@ public class ProxyController : ControllerBase
 
             if (!string.IsNullOrEmpty(Request.ContentType))
             {
-                requestMessage.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+                requestMessage.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json")
+                {
+                    CharSet = "utf-8"
+                };
             }
 
             foreach (var header in Request.Headers)
